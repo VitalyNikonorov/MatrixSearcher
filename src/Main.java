@@ -5,7 +5,8 @@ import java.io.*;
  */
 public class Main {
 
-    private final static String FILE_NAME = "input.txt";
+    private final static String INPUT_FILE_NAME = "input.txt";
+    private final static String OUTPUT_FILE_NAME = "output.txt";
 
     public static void main(String[] args){
 
@@ -14,16 +15,16 @@ public class Main {
 
         String directory = System.getProperty("user.dir");
 
-        File inputFile = new File(String.format("%s/%s", directory, FILE_NAME));
+        File inputFile = new File(String.format("%s/%s", directory, INPUT_FILE_NAME));
 
         int m, n;
 
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line = br.readLine();
 
-            int trimer = line.indexOf(' ');
-            m = new Integer(line.substring(0, trimer));
-            n = new Integer(line.substring(trimer+1));
+            int trimmer = line.indexOf(' ');
+            m = new Integer(line.substring(0, trimmer));
+            n = new Integer(line.substring(trimmer+1));
 
             int lineNumber = 0;
             char currentChar;
@@ -37,22 +38,23 @@ public class Main {
                     for (int j = 0; j < 10; ++j){
                         if (keyWord[j] == Character.toLowerCase(currentChar)){
                             result[j] = new Digit(currentChar, lineNumber, i);
-                            keyWord[j] = '\n';
+                            keyWord[j] = '\n'; //Замещаем невозможным символом
                             ++charCounter;
                             break;
                         }
                     }
                 }
                 if (charCounter == 10){
-                    break;
+                    StringBuilder sb = new StringBuilder();
+
+                    for (int i = 0; i < 10; i++){
+                        sb.append(String.format("%s - (%d, %d);\n", result[i].getSymbol(), result[i].getLine(), result[i].getColumn()));
+                    }
+
+                    writeResult(directory, sb.toString());
+                    return;
                 }
-
                 ++lineNumber;
-
-            }
-
-            for (int i = 0; i < 10; i++){
-                System.out.println(String.format("%s - (%d, %d);", result[i].getSymbol(), result[i].getLine(), result[i].getColumn()));
             }
 
         } catch (FileNotFoundException e) {
@@ -61,8 +63,22 @@ public class Main {
             e.printStackTrace();
         }
 
-        System.out.print("Impossible");
+        writeResult(directory, "Impossible");
+    }
 
+    public static void writeResult(String directory, String result){
+
+        File output = new File(String.format("%s/%s", directory, OUTPUT_FILE_NAME));
+
+        try(FileOutputStream os = new FileOutputStream(output)) {
+            os.write(result.getBytes());
+            os.flush();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
